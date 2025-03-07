@@ -6,8 +6,12 @@
 from abc import ABC
 from sqlalchemy import create_engine, text
 import polars as pl
+import oracledb
 
-__version__="0.1.0"
+__version__="0.2.0"
+
+# activate thick mode for compatibility with oracle 10g
+oracledb.init_oracle_client()
 
 class Database(ABC):
     """
@@ -65,6 +69,16 @@ class Database(ABC):
             int: database port number
         """
         return self._prt
+    
+    @property
+    def socket(self) -> str:
+        """
+        Get the current socket, representing host and port.
+
+        Returns:
+            str: a socket - 'host:port'
+        """
+        return f"{self._srv}:{self._prt}"
     
     @property
     def version(self) -> str:
@@ -154,7 +168,7 @@ class Oracle(Database):
             ins (str): service name
         """        
         super().__init__(srv, prt, usr, pwd, ins)
-        self._eng=create_engine(f"oracle://{usr}:{pwd}@{srv}:{prt}/?service_name={ins}")
+        self._eng=create_engine(f"oracle+oracledb://{usr}:{pwd}@{srv}:{prt}/?service_name={ins}")
 
         with self._eng.connect() as conx:
             rslt=conx.execute(text(

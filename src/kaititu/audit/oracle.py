@@ -7,7 +7,7 @@ class OracleACR(AccessControlReport):
     Oracle access control report. Tested on oracle version >= 10g
     
     Note:
-        For Oracle, the **INSTANCE** column is the SID of database. 
+        The **INSTANCE** column is the Service Name where the queries are executed. 
     """
     def __init__(self, instance: Oracle) -> None:
         """
@@ -32,7 +32,7 @@ class OracleACR(AccessControlReport):
             START WITH GRANTED_ROLE='CONNECT'
             CONNECT BY PRIOR GRANTEE=GRANTED_ROLE
             """
-        ).with_columns(pl.lit(self._db.host).alias("HOST"))
+        ).with_columns(pl.lit(self._db.socket).alias("SOCKET"))
     
     def role_without_members(self) -> pl.DataFrame:
         return self._db.single_qry(
@@ -40,7 +40,7 @@ class OracleACR(AccessControlReport):
             SELECT "ROLE",(SELECT INSTANCE_NAME FROM V$INSTANCE) AS "INSTANCE" 
             FROM DBA_ROLES WHERE ROLE NOT IN (SELECT GRANTED_ROLE FROM DBA_ROLE_PRIVS)
             """
-        ).with_columns(pl.lit(self._db.host).alias("HOST"))
+        ).with_columns(pl.lit(self._db.socket).alias("SOCKET"))
     
     def profile_undue_table_privileges(self) -> pl.DataFrame:
         df = self._db.single_qry(
@@ -66,9 +66,9 @@ class OracleACR(AccessControlReport):
         ).group_by("PROFILE","TABLE_SCHEMA","TABLE_NAME","INSTANCE").agg("PRIVILEGE")
         
         if df.is_empty():
-            return df.with_columns(pl.lit(self._db.host).alias("HOST"))
+            return df.with_columns(pl.lit(self._db.socket).alias("SOCKET"))
         
         return df.with_columns(
             pl.col("PRIVILEGE").list.join(" | "),
-            pl.lit(self._db.host).alias("HOST")
+            pl.lit(self._db.socket).alias("SOCKET")
         )

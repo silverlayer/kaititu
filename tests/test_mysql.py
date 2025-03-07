@@ -6,13 +6,13 @@ import os
 
 @fixture(scope="module")
 def audit1() -> MySqlACR:
-    return MySqlACR(MySql(os.getenv("MY1"),3307,os.getenv("LC_USER"),os.getenv("PASSWD")))
+    return MySqlACR(MySql(os.getenv("MY1"),3306,os.getenv("LC_USER"),os.getenv("PASSWD")))
 
 @fixture(scope="module")
 def audit2() -> MySqlACR:
     return MySqlACR(MySql(os.getenv("MY2"),3306,os.getenv("LC_USER"),os.getenv("PASSWD")))
 
-@mark.parametrize("audit,expected",[("audit1",(os.getenv("MY1"),3307)),("audit2",(os.getenv("MY2"),3306))])
+@mark.parametrize("audit,expected",[("audit1",(os.getenv("MY1"),3306)),("audit2",(os.getenv("MY2"),3306))])
 def test_basic_properties(audit,expected,request) -> None:
     import re
     pattern=re.compile(r"^mysql \d+\.\d+\.\d+", re.IGNORECASE)
