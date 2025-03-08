@@ -8,7 +8,7 @@ class MySqlACR(AccessControlReport):
     MySQL access control report. Tested on MySQL version >= 5.
 
     Note:
-        For MySQL, the **INSTANCE** column is always 'mysql', no matter which database is chosen. 
+        The **INSTANCE** column is always 'mysql', no matter which database is chosen. 
     """
     def __init__(self, instance: MySql) -> None:
         """
@@ -38,7 +38,7 @@ class MySqlACR(AccessControlReport):
             where password_expired='N' and account_locked='N' and length(authentication_string)>0
             """
         ).with_columns(
-            pl.lit(self._db.host).alias("HOST"),
+            pl.lit(self._db.socket).alias("SOCKET"),
             pl.lit("mysql").alias("INSTANCE")
         )
     
@@ -108,7 +108,7 @@ class MySqlACR(AccessControlReport):
             group by grantee,table_schema,table_name
             """
         ).with_columns(
-            pl.lit(self._db.host).alias("HOST"),
+            pl.lit(self._db.socket).alias("SOCKET"),
             pl.lit("mysql").alias("INSTANCE")
         )
         
@@ -127,6 +127,6 @@ class MySqlACR(AccessControlReport):
             )
             """
         ).with_columns(
-            pl.lit(self._db.host).alias("HOST"),
+            pl.lit(self._db.socket).alias("SOCKET"),
             pl.lit("mysql").alias("INSTANCE")
         )

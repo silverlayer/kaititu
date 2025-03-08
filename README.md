@@ -2,12 +2,16 @@
 
 ## What is KAITITU?
 
-Kaititu is a library to deal with common tasks on databases.
+KAITITU is a library to deal with common tasks on databases.
 It has a generic API that helps on operational and analytical tasks for popular database management system.
 
 ## License
 
 KAITITU is released under the terms of the Apache license v2.0. See LICENSE for information.
+
+## Contributing
+
+We welcome contributions from the community. Before submitting a pull request, please review our [contribution guide](./CONTRIBUTING.md).
 
 ## Getting started
 
@@ -36,9 +40,4 @@ result=acr.profile_undue_table_privileges()
 print(result)
 ```
 
-To better understanding KAITITU, read the documentation exploring the left-side menu.
-
-
-### Attention
-
->Although the management of library dependencies is being handled, the drivers required by such libraries are not installed automatically. Therefore, make sure that the necessary drivers for connecting to Oracle, MS SQL Server, and others are functional on your operating system.
+To better understanding KAITITU, read the [documentation](https://silverlayer.github.io/kaititu).

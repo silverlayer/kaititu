@@ -14,11 +14,11 @@ def audit1() -> OracleACR:
 
 @fixture(scope="module")
 def audit2() -> OracleACR:
-    return OracleACR(Oracle(os.getenv("ORC2"),1522,os.getenv("LC_USER"),os.getenv("PASSWD"),os.getenv("ORC2_SN")))
+    return OracleACR(Oracle(os.getenv("ORC2"),1521,os.getenv("LC_USER"),os.getenv("PASSWD"),os.getenv("ORC2_SN")))
 
 @fixture(scope="module")
 def audit3() -> OracleACR:
-    return OracleACR(Oracle(os.getenv("ORC3"),1522,os.getenv("LC_USER"),os.getenv("PASSWD"),os.getenv("ORC3_SN")))
+    return OracleACR(Oracle(os.getenv("ORC3"),1521,os.getenv("LC_USER"),os.getenv("PASSWD"),os.getenv("ORC3_SN")))
 
 @mark.parametrize("audit,expected",[
     ("audit1", os.getenv("ORC1")),

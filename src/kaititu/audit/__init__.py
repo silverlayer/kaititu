@@ -5,14 +5,11 @@ from kaititu import Database
 class AccessControlReport(ABC):
     """
     Abstract class for access control reports.
-    All method here returns the columns **INSTANCE** and **HOST** besides the other columns into a :class:`polars.DataFrame`
-
-    Note:
-        Throughout this entity, the term **Profile** refers to users or roles interchangeably.
+    Throughout this entity, the term **Profile** refers to users or roles interchangeably.
     """
     def __init__(self, instance: Database) -> None:
         """
-        Initializer of abstract class
+        Initializer
 
         Args:
             instance (Database): a subclass of :class:`kaititu.Database`
@@ -37,7 +34,13 @@ class AccessControlReport(ABC):
         Get users or roles that can connect (login)
 
         Returns:
-            DataFrame: 3-columns dataframe with profiles that have login privilege
+            DataFrame: a 3-columns dataframe as below
+
+            **PROFILE** => Role name or User name
+
+            **INSTANCE** => Database name or Service name
+
+            **SOCKET** => Database Host and port as string
         """
         pass
     
@@ -48,6 +51,12 @@ class AccessControlReport(ABC):
 
         Returns:
             DataFrame: 3-columns dataframe with roles that don't have members
+
+            **ROLE** => Role name
+
+            **INSTANCE** => Database name or Service name
+
+            **SOCKET** => Database Host and port as string
         """
         pass
 
@@ -58,6 +67,18 @@ class AccessControlReport(ABC):
         Undue privilege for tables happens when a profile isn't owner of a table and can do any DML or DDL operation on it, except select.
 
         Returns:
-            DataFrame: 6-columns dataframe with undue privileges per role.
+            DataFrame: 6-columns dataframe with undue privileges per role
+
+            **PROFILE** => Role name or User name
+
+            **TABLE_SCHEMA** => The schema's name of tables
+
+            **TABLE_NAME** => The name of table
+
+            **PRIVILEGE** => All role's privilege separated by '|'. eg. "INSERT | UPDATE | GRANT"
+
+            **INSTANCE** => Database name or Service name
+
+            **SOCKET** => Database Host and port as string
         """
         pass

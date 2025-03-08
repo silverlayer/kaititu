@@ -51,7 +51,7 @@ With this minimum setup, you can use |project| like in the code sample below.
 To better understanding |project|, read the documentation exploring the left-side menu.
 
 |
+Troubleshooting
+---------------
 
-.. tip::
-   
-   Although the management of library dependencies is being handled, the drivers required by such libraries are not installed automatically. Therefore, make sure that the necessary drivers for connecting to Oracle, MS SQL Server, and others are functional on your operating system.
+Although the management of library dependencies is being handled, the drivers required by such libraries are not installed automatically. Therefore, make sure that the necessary drivers for connecting to Oracle, MS SQL Server, and others are functional on your operating system.

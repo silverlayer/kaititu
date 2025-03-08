@@ -7,7 +7,7 @@ class PostgresACR(AccessControlReport):
     Postgres access control report. Tested on postgres version >= 8.4
 
     Note:
-        For Postgres, the **INSTANCE** column is the database where the queries are executed.
+        The **INSTANCE** column is the database where the queries are executed.
     """
 
     def __init__(self, instance: Postgres) -> None:
@@ -43,13 +43,13 @@ class PostgresACR(AccessControlReport):
         
         if df.is_empty():
             return df.with_columns(
-                pl.lit(self._db.host).alias("HOST"),
+                pl.lit(self._db.socket).alias("SOCKET"),
                 pl.lit(self._db.instance).alias("INSTANCE")
             )
         
         return df.with_columns(
             pl.col("PRIVILEGE").list.join(" | "),
-            pl.lit(self._db.host).alias("HOST"),
+            pl.lit(self._db.socket).alias("SOCKET"),
             pl.lit(self._db.instance).alias("INSTANCE")
         )
     
@@ -63,7 +63,7 @@ class PostgresACR(AccessControlReport):
             where rolcanlogin=false and role_name is null
             """
         ).with_columns(
-            pl.lit(self._db.host).alias("HOST"),
+            pl.lit(self._db.socket).alias("SOCKET"),
             pl.lit(self._db.instance).alias("INSTANCE")
         )
     
@@ -76,6 +76,6 @@ class PostgresACR(AccessControlReport):
             where rolcanlogin = true
             """
         ).with_columns(
-            pl.lit(self._db.host).alias("HOST"),
+            pl.lit(self._db.socket).alias("SOCKET"),
             pl.lit(self._db.instance).alias("INSTANCE")
         )
