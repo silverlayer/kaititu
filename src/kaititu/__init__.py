@@ -5,6 +5,7 @@
 
 from abc import ABC
 from sqlalchemy import create_engine, text
+from sqlalchemy.engine import Engine, Connection
 import polars as pl
 import oracledb
 
@@ -38,7 +39,7 @@ class Database(ABC):
         self._prt=int(prt)
         self._ins=ins
         self._ver="undefined"
-        self._eng=None
+        self._eng: Engine = None
     
     @property
     def host(self) -> str:
@@ -90,48 +91,21 @@ class Database(ABC):
         """
         return self._ver
     
+    def connect(self) -> Connection:
+        """
+        Get a connection for database.
+
+        Indeed, it's a wrapper for `connect` method of :class:`sqlalchemy.engine.Engine` class.
+
+        Returns:
+            :class:`sqlalchemy.engine.Connection`: a connection for database
+        """
+        self.__check_state()
+        return self._eng.connect()
+    
     def __check_state(self) -> None:
         if not self._eng:
             raise ValueError("invalid connection string")
-        
-    def single_qry(self, qry: str) -> pl.DataFrame:
-        """
-        Perform a single query into the database
-
-        Args:
-            qry (str): the query
-
-        Returns:
-            DataFrame: n-column DataFrame instance
-        """
-        self.__check_state()
-        df=None
-        with self._eng.connect() as conx:
-            df=pl.read_database(query=qry, connection=conx)
-
-        return df
-
-    def multi_qry(self, *queries: str) -> tuple[pl.DataFrame]:
-        """
-        Perform multiple queries in the same database connection
-
-        Args:
-            *queries (str): variant amount of queries
-        
-        Raises:
-            ValueError: if no query is specified
-
-        Returns:
-            tuple[DataFrame]: tuple of DataFrame whose size is exactly the amount of specified queries (in the same order)
-        """
-        self.__check_state()
-        if len(queries) <= 0: raise ValueError("No query was specified")
-        all_dfs=list()
-        with self._eng.connect() as conx:
-            for qry in queries:
-                all_dfs.append(pl.read_database(query=qry,connection=conx))
-
-        return tuple(all_dfs)
 
 class Postgres(Database):
     def __init__(self, srv: str, prt: int, usr: str, pwd: str, ins: str = "postgres") -> None:

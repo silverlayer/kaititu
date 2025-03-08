@@ -1,3 +1,4 @@
+from sqlalchemy.engine import Connection
 from kaititu.audit import AccessControlReport
 from kaititu import Postgres
 import polars as pl
@@ -10,24 +11,24 @@ class PostgresACR(AccessControlReport):
         The **INSTANCE** column is the database where the queries are executed.
     """
 
-    def __init__(self, instance: Postgres) -> None:
+    def __init__(self, conx: Connection) -> None:
         """
         Initializer
 
         Args:
-            instance (Postgres): Postgres database instance
+            conx (Connection): sqlalchemy Connection with postgres dialect
 
         Raises:
-            TypeError: if **instance** is not a class or subclass of :class:`kaititu.Postgres`
+            TypeError: if **instance** is not a class or subclass of :class:`sqlalchemy.engine.Connection`
         """
-        if not isinstance(instance,Postgres):
-            raise TypeError("provide an instance of Postgres class")
+        if not isinstance(conx,Connection) or conx.engine.dialect.name != "postgres":
+            raise TypeError("provide an instance of sqlalchemy connection class with postgres dialect")
         
-        super().__init__(instance)
+        super().__init__(conx)
 
 
     def profile_undue_table_privileges(self) -> pl.DataFrame:
-        df = self._db.single_qry(
+        df = pl.read_database(
             """
             select tp.grantee as "PROFILE",tp.table_schema as "TABLE_SCHEMA",
             tp.table_name as "TABLE_NAME",tp.privilege_type as "PRIVILEGE" 
@@ -38,7 +39,8 @@ class PostgresACR(AccessControlReport):
                 select 1 from pg_catalog.pg_roles
                 where rolsuper=false and rolname=tp.grantee
             )
-            """
+            """,
+            self._conx
         ).group_by("PROFILE","TABLE_SCHEMA","TABLE_NAME").agg(pl.col("PRIVILEGE"))
         
         if df.is_empty():

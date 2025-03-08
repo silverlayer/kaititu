@@ -1,32 +1,17 @@
 from abc import ABC, abstractmethod
 from polars import DataFrame
-from kaititu import Database
+from sqlalchemy.engine import Connection
 
 class AccessControlReport(ABC):
     """
     Abstract class for access control reports.
     Throughout this entity, the term **Profile** refers to users or roles interchangeably.
     """
-    def __init__(self, instance: Database) -> None:
-        """
-        Initializer
-
-        Args:
-            instance (Database): a subclass of :class:`kaititu.Database`
-        """
+    def __init__(self, conx: Connection, sckt_name: str, inst_name: str) -> None:
         super().__init__()
-        self._db = instance
-        
-    
-    @property
-    def db(self) -> Database:
-        """
-        Get the current database object
-
-        Returns:
-            Database: an instance of Database
-        """
-        return self._db
+        self._conx=conx
+        self._socket=sckt_name
+        self._instance=inst_name
      
     @abstractmethod
     def profile_with_login(self) -> DataFrame:
