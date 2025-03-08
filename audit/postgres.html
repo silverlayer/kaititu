@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="prev" title="Audit Module for Oralce" href="oracle.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Audit Module for Postgres - KAITITU v0.1.0 documentation</title>
+        <title>Audit Module for Postgres - KAITITU v0.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">KAITITU v0.1.0 documentation</div></a>
+      <a href="../index.html"><div class="brand">KAITITU v0.2.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">KAITITU v0.1.0 documentation</span>
+  <span class="sidebar-brand-text">KAITITU v0.2.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -202,6 +202,7 @@
 <ul class="current">
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../package.html">KAITITU Package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of KAITITU Package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current has-children"><a class="reference internal" href="audit.html">Audit Package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Audit Package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="mssql.html">Audit Module for MS SQL Server</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mysql.html">Audit Module for MySql</a></li>
 <li class="toctree-l3"><a class="reference internal" href="oracle.html">Audit Module for Oralce</a></li>
 <li class="toctree-l3 current current-page"><a class="current reference internal" href="#">Audit Module for Postgres</a></li>
@@ -258,7 +259,7 @@
 <p>Postgres access control report. Tested on postgres version &gt;= 8.4</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For Postgres, the <strong>INSTANCE</strong> column is the database where the queries are executed.</p>
+<p>The <strong>INSTANCE</strong> column is the database where the queries are executed.</p>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="kaititu.audit.postgres.PostgresACR.__init__">
@@ -281,7 +282,14 @@
 Undue privilege for tables happens when a profile isn’t owner of a table and can do any DML or DDL operation on it, except select.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>DataFrame</em> – 6-columns dataframe with undue privileges per role.</p>
+<dd class="field-odd"><p><p><em>DataFrame</em> – 6-columns dataframe with undue privileges per role</p>
+<p><strong>PROFILE</strong> =&gt; Role name or User name</p>
+<p><strong>TABLE_SCHEMA</strong> =&gt; The schema’s name of tables</p>
+<p><strong>TABLE_NAME</strong> =&gt; The name of table</p>
+<p><strong>PRIVILEGE</strong> =&gt; All role’s privilege separated by ‘|’. eg. “INSERT | UPDATE | GRANT”</p>
+<p><strong>INSTANCE</strong> =&gt; Database name or Service name</p>
+<p><strong>SOCKET</strong> =&gt; Database Host and port as string</p>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -292,7 +300,11 @@ Undue privilege for tables happens when a profile isn’t owner of a table and c
 <dd><p>Get users or roles that can connect (login)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>DataFrame</em> – 3-columns dataframe with profiles that have login privilege</p>
+<dd class="field-odd"><p><p><em>DataFrame</em> – a 3-columns dataframe as below</p>
+<p><strong>PROFILE</strong> =&gt; Role name or User name</p>
+<p><strong>INSTANCE</strong> =&gt; Database name or Service name</p>
+<p><strong>SOCKET</strong> =&gt; Database Host and port as string</p>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -303,7 +315,11 @@ Undue privilege for tables happens when a profile isn’t owner of a table and c
 <dd><p>Get roles without members</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>DataFrame</em> – 3-columns dataframe with roles that don’t have members</p>
+<dd class="field-odd"><p><p><em>DataFrame</em> – 3-columns dataframe with roles that don’t have members</p>
+<p><strong>ROLE</strong> =&gt; Role name</p>
+<p><strong>INSTANCE</strong> =&gt; Database name or Service name</p>
+<p><strong>SOCKET</strong> =&gt; Database Host and port as string</p>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -378,7 +394,7 @@ Undue privilege for tables happens when a profile isn’t owner of a table and c
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=fa47ad08"></script>
+</div><script src="../_static/documentation_options.js?v=683873e3"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Audit Module for Oralce" href="oracle.html" /><link rel="prev" title="Audit Module for MS SQL Server" href="mssql.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Audit Module for MySql" href="mysql.html" /><link rel="prev" title="Audit Package" href="audit.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Audit Module for MySql - KAITITU v0.2.0 documentation</title>
+        <title>Audit Module for SQL Server - KAITITU v0.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
@@ -202,8 +202,8 @@
 <ul class="current">
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../package.html">KAITITU Package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of KAITITU Package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current has-children"><a class="reference internal" href="audit.html">Audit Package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Audit Package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="mssql.html">Audit Module for MS SQL Server</a></li>
-<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">Audit Module for MySql</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">Audit Module for SQL Server</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mysql.html">Audit Module for MySql</a></li>
 <li class="toctree-l3"><a class="reference internal" href="oracle.html">Audit Module for Oralce</a></li>
 <li class="toctree-l3"><a class="reference internal" href="postgres.html">Audit Module for Postgres</a></li>
 </ul>
@@ -230,7 +230,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="../_sources/audit/mysql.rst.txt" title="View this page">
+  <a class="muted-link" href="../_sources/audit/mssql.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -250,34 +250,34 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="module-kaititu.audit.mysql">
-<span id="audit-module-for-mysql"></span><h1>Audit Module for MySql<a class="headerlink" href="#module-kaititu.audit.mysql" title="Link to this heading">¶</a></h1>
+          <section id="module-kaititu.audit.mssql">
+<span id="audit-module-for-sql-server"></span><h1>Audit Module for SQL Server<a class="headerlink" href="#module-kaititu.audit.mssql" title="Link to this heading">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="kaititu.audit.mysql.MySqlACR">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kaititu.audit.mysql.</span></span><span class="sig-name descname"><span class="pre">MySqlACR</span></span><a class="headerlink" href="#kaititu.audit.mysql.MySqlACR" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="kaititu.audit.mssql.MSSqlACR">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kaititu.audit.mssql.</span></span><span class="sig-name descname"><span class="pre">MSSqlACR</span></span><a class="headerlink" href="#kaititu.audit.mssql.MSSqlACR" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="audit.html#kaititu.audit.AccessControlReport" title="kaititu.audit.AccessControlReport"><code class="xref py py-class docutils literal notranslate"><span class="pre">kaititu.audit.AccessControlReport</span></code></a></p>
-<p>MySQL access control report. Tested on MySQL version &gt;= 5.</p>
+<p>MS SQL Server access control report. Tested on SQL Server version &gt;= 2012</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The <strong>INSTANCE</strong> column is always ‘mysql’, no matter which database is chosen.</p>
+<p>The <strong>INSTANCE</strong> column is the database where the queries are executed.</p>
 </div>
 <dl class="py method">
-<dt class="sig sig-object py" id="kaititu.audit.mysql.MySqlACR.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../package.html#kaititu.MySql" title="kaititu.MySql"><span class="pre">kaititu.MySql</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#kaititu.audit.mysql.MySqlACR.__init__" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="kaititu.audit.mssql.MSSqlACR.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../package.html#kaititu.MSSql" title="kaititu.MSSql"><span class="pre">kaititu.MSSql</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#kaititu.audit.mssql.MSSqlACR.__init__" title="Link to this definition">¶</a></dt>
 <dd><p>Initializer</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>instance</strong> (<a class="reference internal" href="../package.html#kaititu.MySql" title="kaititu.MySql"><em>MySql</em></a>) – database instance</p>
+<dd class="field-odd"><p><strong>instance</strong> (<a class="reference internal" href="../package.html#kaititu.MSSql" title="kaititu.MSSql"><em>MSSql</em></a>) – MSSql database instance</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>TypeError</strong> – if <strong>instance</strong> is not a class or subclass of <a class="reference internal" href="../package.html#kaititu.MySql" title="kaititu.MySql"><code class="xref py py-class docutils literal notranslate"><span class="pre">kaititu.MySql</span></code></a></p>
+<dd class="field-even"><p><strong>TypeError</strong> – if <strong>instance</strong> is not a class or subclass of <a class="reference internal" href="../package.html#kaititu.MSSql" title="kaititu.MSSql"><code class="xref py py-class docutils literal notranslate"><span class="pre">kaititu.MSSql</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="kaititu.audit.mysql.MySqlACR.profile_undue_table_privileges">
-<span class="sig-name descname"><span class="pre">profile_undue_table_privileges</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">polars.dataframe.frame.DataFrame</span></span></span><a class="headerlink" href="#kaititu.audit.mysql.MySqlACR.profile_undue_table_privileges" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="kaititu.audit.mssql.MSSqlACR.profile_undue_table_privileges">
+<span class="sig-name descname"><span class="pre">profile_undue_table_privileges</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">polars.dataframe.frame.DataFrame</span></span></span><a class="headerlink" href="#kaititu.audit.mssql.MSSqlACR.profile_undue_table_privileges" title="Link to this definition">¶</a></dt>
 <dd><p>Get undue privileges for tables per profile if any.
 Undue privilege for tables happens when a profile isn’t owner of a table and can do any DML or DDL operation on it, except select.</p>
 <dl class="field-list simple">
@@ -295,8 +295,8 @@ Undue privilege for tables happens when a profile isn’t owner of a table and c
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="kaititu.audit.mysql.MySqlACR.profile_with_login">
-<span class="sig-name descname"><span class="pre">profile_with_login</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">polars.dataframe.frame.DataFrame</span></span></span><a class="headerlink" href="#kaititu.audit.mysql.MySqlACR.profile_with_login" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="kaititu.audit.mssql.MSSqlACR.profile_with_login">
+<span class="sig-name descname"><span class="pre">profile_with_login</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">polars.dataframe.frame.DataFrame</span></span></span><a class="headerlink" href="#kaititu.audit.mssql.MSSqlACR.profile_with_login" title="Link to this definition">¶</a></dt>
 <dd><p>Get users or roles that can connect (login)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -310,8 +310,8 @@ Undue privilege for tables happens when a profile isn’t owner of a table and c
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="kaititu.audit.mysql.MySqlACR.role_without_members">
-<span class="sig-name descname"><span class="pre">role_without_members</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">polars.dataframe.frame.DataFrame</span></span></span><a class="headerlink" href="#kaititu.audit.mysql.MySqlACR.role_without_members" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="kaititu.audit.mssql.MSSqlACR.role_without_members">
+<span class="sig-name descname"><span class="pre">role_without_members</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">polars.dataframe.frame.DataFrame</span></span></span><a class="headerlink" href="#kaititu.audit.mssql.MSSqlACR.role_without_members" title="Link to this definition">¶</a></dt>
 <dd><p>Get roles without members</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -333,23 +333,23 @@ Undue privilege for tables happens when a profile isn’t owner of a table and c
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="oracle.html">
+          <a class="next-page" href="mysql.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Audit Module for Oralce</div>
+                <div class="title">Audit Module for MySql</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="mssql.html">
+          <a class="prev-page" href="audit.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Audit Module for MS SQL Server</div>
+                <div class="title">Audit Package</div>
                 
               </div>
             </a>
@@ -383,12 +383,12 @@ Undue privilege for tables happens when a profile isn’t owner of a table and c
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Audit Module for MySql</a><ul>
-<li><a class="reference internal" href="#kaititu.audit.mysql.MySqlACR"><code class="docutils literal notranslate"><span class="pre">MySqlACR</span></code></a><ul>
-<li><a class="reference internal" href="#kaititu.audit.mysql.MySqlACR.__init__"><code class="docutils literal notranslate"><span class="pre">MySqlACR.__init__()</span></code></a></li>
-<li><a class="reference internal" href="#kaititu.audit.mysql.MySqlACR.profile_undue_table_privileges"><code class="docutils literal notranslate"><span class="pre">MySqlACR.profile_undue_table_privileges()</span></code></a></li>
-<li><a class="reference internal" href="#kaititu.audit.mysql.MySqlACR.profile_with_login"><code class="docutils literal notranslate"><span class="pre">MySqlACR.profile_with_login()</span></code></a></li>
-<li><a class="reference internal" href="#kaititu.audit.mysql.MySqlACR.role_without_members"><code class="docutils literal notranslate"><span class="pre">MySqlACR.role_without_members()</span></code></a></li>
+<li><a class="reference internal" href="#">Audit Module for SQL Server</a><ul>
+<li><a class="reference internal" href="#kaititu.audit.mssql.MSSqlACR"><code class="docutils literal notranslate"><span class="pre">MSSqlACR</span></code></a><ul>
+<li><a class="reference internal" href="#kaititu.audit.mssql.MSSqlACR.__init__"><code class="docutils literal notranslate"><span class="pre">MSSqlACR.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#kaititu.audit.mssql.MSSqlACR.profile_undue_table_privileges"><code class="docutils literal notranslate"><span class="pre">MSSqlACR.profile_undue_table_privileges()</span></code></a></li>
+<li><a class="reference internal" href="#kaititu.audit.mssql.MSSqlACR.profile_with_login"><code class="docutils literal notranslate"><span class="pre">MSSqlACR.profile_with_login()</span></code></a></li>
+<li><a class="reference internal" href="#kaititu.audit.mssql.MSSqlACR.role_without_members"><code class="docutils literal notranslate"><span class="pre">MSSqlACR.role_without_members()</span></code></a></li>
 </ul>
 </li>
 </ul>

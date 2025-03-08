@@ -5,6 +5,7 @@ Audit Package
     :maxdepth: 2
     :caption: Modules
 
+    mssql
     mysql
     oracle
     postgres
