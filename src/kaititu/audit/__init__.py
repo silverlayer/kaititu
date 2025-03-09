@@ -7,12 +7,17 @@ class AccessControlReport(ABC):
     Abstract class for access control reports.
     Throughout this entity, the term **Profile** refers to users or roles interchangeably.
     """
-    def __init__(self, conx: Connection, sckt_name: str, inst_name: str) -> None:
+    def __init__(self, conx: Connection) -> None:
         super().__init__()
         self._conx=conx
-        self._socket=sckt_name
-        self._instance=inst_name
-     
+        self._socket=conx.info["socket"]
+        self._instance=conx.info["instance"]
+
+    @staticmethod
+    def _check_connection_type(conx: Connection) -> None:
+        if not isinstance(conx,Connection):
+            raise TypeError("conx must be an instance of sqlalchemy.engine.Connection")
+         
     @abstractmethod
     def profile_with_login(self) -> DataFrame:
         """

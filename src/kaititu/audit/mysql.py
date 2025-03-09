@@ -1,5 +1,5 @@
 from kaititu.audit import AccessControlReport
-from kaititu import MySql
+from sqlalchemy.engine import Connection
 import polars as pl
 import re
 
@@ -10,40 +10,43 @@ class MySqlACR(AccessControlReport):
     Note:
         The **INSTANCE** column is always 'mysql', no matter which database is chosen. 
     """
-    def __init__(self, instance: MySql) -> None:
+    def __init__(self, conx: Connection) -> None:
         """
         Initializer
 
         Args:
-            instance (MySql): database instance
+            conx (sqlalchemy.engine.Connection): Connection instance with mysql dialect
 
         Raises:
-            TypeError: if **instance** is not a class or subclass of :class:`kaititu.MySql`
+            TypeError: when **conx** is not a class or subclass of :class:`sqlalchemy.engine.Connection`
+            ValueError: when connection's dialect is not mysql
         """
-        if not isinstance(instance,MySql):
-            raise TypeError("provide an instance of MySql class")
+        MySqlACR._check_connection_type(conx)
+        if conx.engine.dialect.name != "mysql":
+            raise ValueError("provide an instance of sqlalchemy connection class with mysql dialect")
         
-        super().__init__(instance)
+        super().__init__(conx)
         # major version number
-        ver=re.search(r"(\d+)\.\d+\.\d+",instance.version)
-        if not ver: raise ValueError("Invalid MySQL host: "+instance.version)
+        ver=re.search(r"(\d+)\.\d+\.\d+",conx.info["version"])
+        if not ver: raise ValueError("Invalid MySQL host: "+conx.info["version"])
         self._verno=int(ver.group(1))
 
     def profile_with_login(self) -> pl.DataFrame:
-        return self._db.single_qry(
-            """select distinct replace(grantee,'''','') as `PROFILE` from information_schema.USER_PRIVILEGES"""\
-            if self._verno<8 else\
+        return pl.read_database(
+            """select distinct replace(grantee,'''','') as `PROFILE` from information_schema.USER_PRIVILEGES"""
+            if self._verno<8 else
             """
             select concat('''',user,'''','@','''',host,'''') as `PROFILE` from mysql.user
             where password_expired='N' and account_locked='N' and length(authentication_string)>0
-            """
+            """,
+            self._conx
         ).with_columns(
-            pl.lit(self._db.socket).alias("SOCKET"),
+            pl.lit(self._socket).alias("SOCKET"),
             pl.lit("mysql").alias("INSTANCE")
         )
     
     def profile_undue_table_privileges(self) -> pl.DataFrame:
-        return self._db.single_qry(
+        return pl.read_database(
             """
             select grantee as `PROFILE`,`TABLE_SCHEMA`,`TABLE_NAME`,
             group_concat(privilege_type separator ' | ') as `PRIVILEGE`
@@ -106,9 +109,10 @@ class MySqlACR(AccessControlReport):
             group_concat(privilege_type separator ' | ') as `PRIVILEGE`
             from cte_final
             group by grantee,table_schema,table_name
-            """
+            """,
+            self._conx
         ).with_columns(
-            pl.lit(self._db.socket).alias("SOCKET"),
+            pl.lit(self._socket).alias("SOCKET"),
             pl.lit("mysql").alias("INSTANCE")
         )
         
@@ -117,7 +121,7 @@ class MySqlACR(AccessControlReport):
         if self._verno<8:
             raise NotImplementedError("Only MySQL version >= 8 implemets role")
         
-        return self._db.single_qry(
+        return pl.read_database(
             """
             select concat('''',user,'''','@','''',host,'''') as `ROLE` from mysql.user
             where password_expired='Y' and account_locked='Y' and not length(authentication_string)
@@ -125,8 +129,9 @@ class MySqlACR(AccessControlReport):
                 select concat('''',from_user,'''','@','''',from_host,'''')
                 from mysql.role_edges
             )
-            """
+            """,
+            self._conx
         ).with_columns(
-            pl.lit(self._db.socket).alias("SOCKET"),
+            pl.lit(self._socket).alias("SOCKET"),
             pl.lit("mysql").alias("INSTANCE")
         )
