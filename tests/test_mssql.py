@@ -36,7 +36,7 @@ def test_role_nomember(mssql: str, request) -> None:
     with db.connect() as con:
         df = MSSqlACR(con).role_without_members()
 
-    assert not df.is_empty() and has_columns(ROLE_WITHOUT_MEMBERS_COLS, df.columns)
+    assert df.is_empty() and has_columns(ROLE_WITHOUT_MEMBERS_COLS, df.columns)
 
 @mark.parametrize("mssql",["sa_auth","win_auth"])
 def test_profile_undue_privs(mssql: str, request) -> None:
@@ -56,3 +56,23 @@ def test_no_profile_undue_privs(sa_auth: MSSql, monkeypatch) -> None:
         df=MSSqlACR(con).profile_undue_table_privileges()
 
     assert df.is_empty() and has_columns(TABLE_UNDUE_PRIVILEGES_COLS, df.columns)
+
+@mark.parametrize("mssql,expected",[("sa_auth",0),("win_auth",55)])
+def test_all_db_profile_with_login(mssql: str, expected: int, request) -> None:
+    db: MSSql = request.getfixturevalue(mssql)
+    with db.connect() as con:
+        df=MSSqlACR(con).all_profile_with_login().unique("INSTANCE")
+
+    assert df.shape[0] > expected
+
+def test_all_db_role_without_members(win_auth: MSSql) -> None:
+    with win_auth.connect() as con:
+        df=MSSqlACR(con).all_role_without_members()
+
+    assert df.shape[0] == 2
+
+def test_all_db_profile_undue_table_privileges(sa_auth: MSSql):
+    with sa_auth.connect() as con:
+        df=MSSqlACR(con).all_profile_undue_table_privileges()
+
+    assert df.shape[0] > 200

@@ -1,5 +1,6 @@
 from kaititu.audit import AccessControlReport
 from sqlalchemy.engine import Connection
+from typing import Callable
 import polars as pl
 
 class MSSqlACR(AccessControlReport):
@@ -194,13 +195,12 @@ class MSSqlACR(AccessControlReport):
     
 
     def role_without_members(self) -> pl.DataFrame:
-        # template query
         return pl.read_database(
             """
-            select concat(r.name collate database_default,iif(r.is_fixed_role>0,' (FIXED_ROLE)','')) as ROLE
+            select r.name as ROLE
             from sys.database_principals r
             left join sys.database_role_members rm on (r.principal_id=rm.role_principal_id)
-            where r.type='R' and r.name!='public'
+            where r.type='R' and r.name!='public' and r.is_fixed_role=0
             and rm.member_principal_id is null
             """,
             self._conx
@@ -223,3 +223,23 @@ class MSSqlACR(AccessControlReport):
             pl.lit(self._socket).alias("SOCKET"),
             pl.lit(self._instance).alias("INSTANCE")
         )
+    
+    def __run_inall_databases(self, method: Callable) -> pl.DataFrame:
+        bases = self._conx.exec_driver_sql("select name from master.sys.databases where database_id>4").all()
+        dfs=[]
+        for base in bases:
+            self._instance=base[0]
+            self._conx.exec_driver_sql(f"USE {self._instance};")
+            dfs.append(method())
+        
+        return pl.concat(dfs, how="vertical")
+    
+    def all_profile_with_login(self) -> pl.DataFrame:
+        return self.__run_inall_databases(self.profile_with_login)
+    
+    def all_role_without_members(self) -> pl.DataFrame:
+        return self.__run_inall_databases(self.role_without_members)
+    
+    def all_profile_undue_table_privileges(self) -> pl.DataFrame:
+        return self.__run_inall_databases(self.profile_undue_table_privileges)
+
