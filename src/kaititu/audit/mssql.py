@@ -225,6 +225,7 @@ class MSSqlACR(AccessControlReport):
         )
     
     def __run_inall_databases(self, method: Callable) -> pl.DataFrame:
+        initial_base=self._conx.info["instance"]
         bases = self._conx.exec_driver_sql("select name from master.sys.databases where database_id>4").all()
         dfs=[]
         for base in bases:
@@ -232,6 +233,7 @@ class MSSqlACR(AccessControlReport):
             self._conx.exec_driver_sql(f"USE {self._instance};")
             dfs.append(method())
         
+        self._conx.exec_driver_sql(f"USE {initial_base};")
         return pl.concat(dfs, how="vertical")
     
     def all_profile_with_login(self) -> pl.DataFrame:

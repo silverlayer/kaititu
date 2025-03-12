@@ -62,16 +62,18 @@ def test_all_db_profile_with_login(mssql: str, expected: int, request) -> None:
     db: MSSql = request.getfixturevalue(mssql)
     with db.connect() as con:
         df=MSSqlACR(con).all_profile_with_login().unique("INSTANCE")
+        final_inst=con.exec_driver_sql("select db_name()").scalar()
 
-    assert df.shape[0] > expected
+    assert df.shape[0] > expected and db.instance == final_inst
 
 def test_all_db_role_without_members(win_auth: MSSql) -> None:
     with win_auth.connect() as con:
         df=MSSqlACR(con).all_role_without_members()
+        final_inst=con.exec_driver_sql("select db_name()").scalar()
 
-    assert df.shape[0] == 2
+    assert df.shape[0] == 2 and win_auth.instance == final_inst
 
-def test_all_db_profile_undue_table_privileges(sa_auth: MSSql):
+def test_all_db_profile_undue_table_privileges(sa_auth: MSSql) -> None:
     with sa_auth.connect() as con:
         df=MSSqlACR(con).all_profile_undue_table_privileges()
 
