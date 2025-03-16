@@ -237,11 +237,29 @@ class MSSqlACR(AccessControlReport):
         return pl.concat(dfs, how="vertical")
     
     def all_profile_with_login(self) -> pl.DataFrame:
+        """
+        Run the :meth:`MSSqlACR.profile_with_login` method for all non-system databases in the server.
+
+        Returns:
+            DataFrame: a DataFrame with the same format as the :meth:`MSSqlACR.profile_with_login` method
+        """
         return self.__run_inall_databases(self.profile_with_login)
     
     def all_role_without_members(self) -> pl.DataFrame:
+        """
+        Run the :meth:`MSSqlACR.role_without_members` method for all non-system databases in the server.
+
+        Returns:
+            DataFrame: a DataFrame with the same format as the :meth:`MSSqlACR.role_without_members` method.
+        """
         return self.__run_inall_databases(self.role_without_members)
     
     def all_profile_undue_table_privileges(self) -> pl.DataFrame:
+        """
+        Run the :meth:`MSSqlACR.profile_undue_table_privileges` method for all non-system databases in the server.
+
+        Returns:
+            DataFrame: a DataFrame with the same format as the :meth:`MSSqlACR.profile_undue_table_privileges` method.
+        """
         return self.__run_inall_databases(self.profile_undue_table_privileges)
 
