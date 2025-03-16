@@ -8,7 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine, Connection
 import oracledb
 
-__version__="0.2.0"
+__version__="1.0.0"
 
 
 class Database(ABC):
