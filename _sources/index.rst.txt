@@ -31,27 +31,29 @@ With this minimum setup, you can use |project| like in the code sample below.
 .. code-block:: python
    :linenos:
 
-   from kaititu.audit.mysql import MySqlACR
-   from kaititu import MySql
+   from kaititu.audit.postgres import PostgresACR
+   from kaititu import Postgres
 
    # the user must have privileges to read system objects of database
-   db=MySql("localhost",3306,"dba","654321")
+   db=Postgres("127.0.0.1",5432,"dba","654321")
 
    # print the database version as a banner 
    print(db.version)
 
-   acr=MySqlACR(db)
-   # get profiles that have undue privileges on tables. See the docs for detail.
-   result=acr.profile_undue_table_privileges()
-
-   # print the corresponding polars.DataFrame
-   print(result)
+   with db.connect() as connection:
+      acr=PostgresACR(connection)
+      # get profiles that have undue privileges on tables. See the docs for detail.
+      result=acr.profile_undue_table_privileges()
+      # print the corresponding polars.DataFrame
+      print(result)
 
 
 To better understanding |project|, read the documentation exploring the left-side menu.
 
 |
+
 Troubleshooting
 ---------------
 
-Although the management of library dependencies is being handled, the drivers required by such libraries are not installed automatically. Therefore, make sure that the necessary drivers for connecting to Oracle, MS SQL Server, and others are functional on your operating system.
+Although the management of library dependencies is being handled, the drivers required by such libraries are not installed automatically. 
+Therefore, make sure that the necessary drivers for connecting to Oracle, MS SQL Server, and others are functional on your operating system.
