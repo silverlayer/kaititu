@@ -1,5 +1,5 @@
 from kaititu.audit import AccessControlReport
-from kaititu import Oracle
+from sqlalchemy.engine import Connection
 import polars as pl
 
 class OracleACR(AccessControlReport):
@@ -9,41 +9,45 @@ class OracleACR(AccessControlReport):
     Note:
         The **INSTANCE** column is the Service Name where the queries are executed. 
     """
-    def __init__(self, instance: Oracle) -> None:
+    def __init__(self, conx: Connection) -> None:
         """
         Initializer
 
         Args:
-            instance (Oracle): Oracle database instance
+            conx (sqlalchemy.engine.Connection): Connection instance with oracle dialect
 
         Raises:
-            TypeError: if **instance** is not a class or subclass of :class:`kaititu.Oracle`
+            TypeError: when **conx** is not a class or subclass of :class:`sqlalchemy.engine.Connection`
+            ValueError: when connection's dialect is not oracle
         """
-        if not isinstance(instance,Oracle):
-            raise TypeError("provide an instance of Oracle class")
+        OracleACR._check_connection_type(conx)
+        if conx.engine.dialect.name != "oracle":
+            raise ValueError("provide an instance of sqlalchemy connection class with oracle dialect")
         
-        super().__init__(instance)
+        super().__init__(conx)
 
     def profile_with_login(self) -> pl.DataFrame:
-        return self._db.single_qry(
+        return pl.read_database(
             """
             SELECT DISTINCT GRANTEE AS "PROFILE",(SELECT INSTANCE_NAME FROM V$INSTANCE) AS "INSTANCE"
             FROM DBA_ROLE_PRIVS
             START WITH GRANTED_ROLE='CONNECT'
             CONNECT BY PRIOR GRANTEE=GRANTED_ROLE
-            """
-        ).with_columns(pl.lit(self._db.socket).alias("SOCKET"))
+            """,
+            self._conx
+        ).with_columns(pl.lit(self._socket).alias("SOCKET"))
     
     def role_without_members(self) -> pl.DataFrame:
-        return self._db.single_qry(
+        return pl.read_database(
             """
             SELECT "ROLE",(SELECT INSTANCE_NAME FROM V$INSTANCE) AS "INSTANCE" 
             FROM DBA_ROLES WHERE ROLE NOT IN (SELECT GRANTED_ROLE FROM DBA_ROLE_PRIVS)
-            """
-        ).with_columns(pl.lit(self._db.socket).alias("SOCKET"))
+            """,
+            self._conx
+        ).with_columns(pl.lit(self._socket).alias("SOCKET"))
     
     def profile_undue_table_privileges(self) -> pl.DataFrame:
-        df = self._db.single_qry(
+        df = pl.read_database(
             """
             SELECT TP.GRANTEE AS "PROFILE",TP.OWNER AS "TABLE_SCHEMA",TP.TABLE_NAME,TP.PRIVILEGE,
             (SELECT INSTANCE_NAME FROM V$INSTANCE) AS "INSTANCE"
@@ -62,13 +66,14 @@ class OracleACR(AccessControlReport):
                 SELECT 1 FROM DBA_TABLES
                 WHERE TABLE_NAME=TP.TABLE_NAME
             )
-            """
+            """,
+            self._conx
         ).group_by("PROFILE","TABLE_SCHEMA","TABLE_NAME","INSTANCE").agg("PRIVILEGE")
         
         if df.is_empty():
-            return df.with_columns(pl.lit(self._db.socket).alias("SOCKET"))
+            return df.with_columns(pl.lit(self._socket).alias("SOCKET"))
         
         return df.with_columns(
             pl.col("PRIVILEGE").list.join(" | "),
-            pl.lit(self._db.socket).alias("SOCKET")
+            pl.lit(self._socket).alias("SOCKET")
         )

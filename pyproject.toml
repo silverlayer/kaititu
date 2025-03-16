@@ -52,7 +52,7 @@ testpaths = "tests"
 [project.urls]
 Repository = "https://github.com/silverlayer/kaititu.git"
 Documentation = "https://silverlayer.github.io/kaititu"
-Discussions = "https://github.com/silverlayer/kaititu/discussions"
+Issues = "https://github.com/silverlayer/kaititu/issues"
 
 [dependency-groups]
 dev = [

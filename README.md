@@ -23,21 +23,21 @@ The second piece is an instance of some class that uses `kaititu.Database`; for 
 With this minimum setup, you can use KAITITU like in the code sample below.
 
 ```python
-from kaititu.audit.mysql import MySqlACR
-from kaititu import MySql
+from kaititu.audit.postgres import PostgresACR
+from kaititu import Postgres
 
 # the user must have privileges to read system objects of database
-db=MySql("localhost",3306,"dba","654321")
+db=Postgres("127.0.0.1",5432,"dba","654321")
 
 # print the database version as a banner 
 print(db.version)
 
-acr=MySqlACR(db)
-# get profiles that have undue privileges on tables. See the docs for detail.
-result=acr.profile_undue_table_privileges()
-
-# print the corresponding polars.DataFrame
-print(result)
+with db.connect() as connection:
+    acr=PostgresACR(connection)
+    # get profiles that have undue privileges on tables. See the docs for detail.
+    result=acr.profile_undue_table_privileges()
+    # print the corresponding polars.DataFrame
+    print(result)
 ```
 
 To better understanding KAITITU, read the [documentation](https://silverlayer.github.io/kaititu).

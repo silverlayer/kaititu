@@ -1,5 +1,5 @@
+from sqlalchemy.engine import Connection
 from kaititu.audit import AccessControlReport
-from kaititu import Postgres
 import polars as pl
 
 class PostgresACR(AccessControlReport):
@@ -10,24 +10,26 @@ class PostgresACR(AccessControlReport):
         The **INSTANCE** column is the database where the queries are executed.
     """
 
-    def __init__(self, instance: Postgres) -> None:
+    def __init__(self, conx: Connection) -> None:
         """
         Initializer
 
         Args:
-            instance (Postgres): Postgres database instance
+            conx (sqlalchemy.engine.Connection): Connection instance with postgresql dialect
 
         Raises:
-            TypeError: if **instance** is not a class or subclass of :class:`kaititu.Postgres`
+            TypeError: when **conx** is not a class or subclass of :class:`sqlalchemy.engine.Connection`
+            ValueError: when connection's dialect is not postgresql
         """
-        if not isinstance(instance,Postgres):
-            raise TypeError("provide an instance of Postgres class")
+        PostgresACR._check_connection_type(conx)
+        if conx.engine.dialect.name != "postgresql":
+            raise ValueError("provide an instance of sqlalchemy connection class with postgresql dialect")
         
-        super().__init__(instance)
+        super().__init__(conx)
 
 
     def profile_undue_table_privileges(self) -> pl.DataFrame:
-        df = self._db.single_qry(
+        df = pl.read_database(
             """
             select tp.grantee as "PROFILE",tp.table_schema as "TABLE_SCHEMA",
             tp.table_name as "TABLE_NAME",tp.privilege_type as "PRIVILEGE" 
@@ -38,44 +40,47 @@ class PostgresACR(AccessControlReport):
                 select 1 from pg_catalog.pg_roles
                 where rolsuper=false and rolname=tp.grantee
             )
-            """
+            """,
+            self._conx
         ).group_by("PROFILE","TABLE_SCHEMA","TABLE_NAME").agg(pl.col("PRIVILEGE"))
         
         if df.is_empty():
             return df.with_columns(
-                pl.lit(self._db.socket).alias("SOCKET"),
-                pl.lit(self._db.instance).alias("INSTANCE")
+                pl.lit(self._socket).alias("SOCKET"),
+                pl.lit(self._instance).alias("INSTANCE")
             )
         
         return df.with_columns(
             pl.col("PRIVILEGE").list.join(" | "),
-            pl.lit(self._db.socket).alias("SOCKET"),
-            pl.lit(self._db.instance).alias("INSTANCE")
+            pl.lit(self._socket).alias("SOCKET"),
+            pl.lit(self._instance).alias("INSTANCE")
         )
     
 
     def role_without_members(self) -> pl.DataFrame:
-        return self._db.single_qry(
+        return pl.read_database(
             """
             select upper(trim(rolname)) as "ROLE" 
             from pg_catalog.pg_roles 
             left join information_schema.applicable_roles on (rolname=role_name)
             where rolcanlogin=false and role_name is null
-            """
+            """,
+            self._conx
         ).with_columns(
-            pl.lit(self._db.socket).alias("SOCKET"),
-            pl.lit(self._db.instance).alias("INSTANCE")
+            pl.lit(self._socket).alias("SOCKET"),
+            pl.lit(self._instance).alias("INSTANCE")
         )
     
 
     def profile_with_login(self) -> pl.DataFrame:
-        return self._db.single_qry(
+        return pl.read_database(
             """
             select upper(trim(rolname)) as "PROFILE" 
             from pg_catalog.pg_roles
             where rolcanlogin = true
-            """
+            """,
+            self._conx
         ).with_columns(
-            pl.lit(self._db.socket).alias("SOCKET"),
-            pl.lit(self._db.instance).alias("INSTANCE")
+            pl.lit(self._socket).alias("SOCKET"),
+            pl.lit(self._instance).alias("INSTANCE")
         )

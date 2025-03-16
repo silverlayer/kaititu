@@ -1,17 +1,15 @@
 """
- Kaititu is a library to deal with common tasks on databases.
+ KAITITU is a library to deal with common tasks on databases.
  It has a generic API that helps on operational and analytical tasks for popular database management system.
 """
 
 from abc import ABC
-from sqlalchemy import create_engine, text
-import polars as pl
+from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine, Connection
 import oracledb
 
-__version__="0.2.0"
+__version__="1.0.0"
 
-# activate thick mode for compatibility with oracle 10g
-oracledb.init_oracle_client()
 
 class Database(ABC):
     """
@@ -38,7 +36,7 @@ class Database(ABC):
         self._prt=int(prt)
         self._ins=ins
         self._ver="undefined"
-        self._eng=None
+        self._eng: Engine = None
     
     @property
     def host(self) -> str:
@@ -90,48 +88,26 @@ class Database(ABC):
         """
         return self._ver
     
+    def connect(self) -> Connection:
+        """
+        Get a connection for database.
+
+        Indeed, it's a wrapper for `connect` method of :class:`sqlalchemy.engine.Engine` class.
+        However, it puts the 'version', 'instance' and 'socket' into the `info` property of connection.
+
+        Returns:
+            :class:`sqlalchemy.engine.Connection`: connection for database
+        """
+        self.__check_state()
+        conn=self._eng.connect()
+        conn.info["version"]=self.version
+        conn.info["instance"]=self.instance
+        conn.info["socket"]=self.socket
+        return conn
+    
     def __check_state(self) -> None:
         if not self._eng:
-            raise ValueError("invalid connection string")
-        
-    def single_qry(self, qry: str) -> pl.DataFrame:
-        """
-        Perform a single query into the database
-
-        Args:
-            qry (str): the query
-
-        Returns:
-            DataFrame: n-column DataFrame instance
-        """
-        self.__check_state()
-        df=None
-        with self._eng.connect() as conx:
-            df=pl.read_database(query=qry, connection=conx)
-
-        return df
-
-    def multi_qry(self, *queries: str) -> tuple[pl.DataFrame]:
-        """
-        Perform multiple queries in the same database connection
-
-        Args:
-            *queries (str): variant amount of queries
-        
-        Raises:
-            ValueError: if no query is specified
-
-        Returns:
-            tuple[DataFrame]: tuple of DataFrame whose size is exactly the amount of specified queries (in the same order)
-        """
-        self.__check_state()
-        if len(queries) <= 0: raise ValueError("No query was specified")
-        all_dfs=list()
-        with self._eng.connect() as conx:
-            for qry in queries:
-                all_dfs.append(pl.read_database(query=qry,connection=conx))
-
-        return tuple(all_dfs)
+            raise ValueError("There is no sqlalchemy engine valid")
 
 class Postgres(Database):
     def __init__(self, srv: str, prt: int, usr: str, pwd: str, ins: str = "postgres") -> None:
@@ -151,7 +127,7 @@ class Postgres(Database):
         self._eng=create_engine(f"postgresql://{usr}:{pwd}@{srv}:{prt}/{ins}")
 
         with self._eng.connect() as conx:
-            self._ver=conx.execute(text("select version()")).scalar()
+            self._ver=conx.exec_driver_sql("select version()").scalar()
 
 class Oracle(Database):
     def __init__(self, srv: str, prt: int, usr: str, pwd: str, ins: str) -> None:
@@ -168,19 +144,21 @@ class Oracle(Database):
             ins (str): service name
         """        
         super().__init__(srv, prt, usr, pwd, ins)
+        # activate thick mode for compatibility with oracle 10g
+        oracledb.init_oracle_client()
         self._eng=create_engine(f"oracle+oracledb://{usr}:{pwd}@{srv}:{prt}/?service_name={ins}")
 
         with self._eng.connect() as conx:
-            rslt=conx.execute(text(
+            rslt=conx.exec_driver_sql(
                 """SELECT (SELECT BANNER FROM v$version WHERE banner LIKE 'Oracle%') AS B,VERSION 
                 FROM PRODUCT_COMPONENT_VERSION WHERE PRODUCT LIKE 'Oracle%'"""
-            )).one()
+            ).one()
             
             if int(rslt[1].split('.')[0]) > 12:
-                self._ver=conx.execute(text(
+                self._ver=conx.exec_driver_sql(
                     """SELECT PRODUCT||' '||VERSION_FULL||' - '||STATUS AS V
                     FROM PRODUCT_COMPONENT_VERSION WHERE PRODUCT LIKE 'Oracle%'"""
-                )).scalar()
+                ).scalar()
             else:
                 self._ver=rslt[0]
 
@@ -202,9 +180,9 @@ class MySql(Database):
         self._eng=create_engine(f"mysql://{usr}:{pwd}@{srv}:{prt}/{ins}")
 
         with self._eng.connect() as conx:
-            self._ver = conx.execute(text(
+            self._ver = conx.exec_driver_sql(
                 "select concat('MySQL ',@@version,' (',@@version_compile_os,' ',@@version_compile_machine,')') as banner"
-            )).scalar()
+            ).scalar()
 
 class MSSql(Database):
     """
@@ -233,8 +211,8 @@ class MSSql(Database):
             self._eng=create_engine(f"mssql://{usr}:{pwd}@{srv}:{prt}/{ins}?driver=SQL+Server")
 
         with self._eng.connect() as conx:
-            self._ver=conx.execute(
-                text("select substring(@@version,1,charindex(char(10),@@version)-2) as banner")
+            self._ver=conx.exec_driver_sql(
+                "select substring(@@version,1,charindex(char(10),@@version)-2) as banner"
             ).scalar()
 
 
