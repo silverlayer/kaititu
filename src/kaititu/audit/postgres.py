@@ -60,10 +60,14 @@ class PostgresACR(AccessControlReport):
     def role_without_members(self) -> pl.DataFrame:
         return pl.read_database(
             """
-            select upper(trim(rolname)) as "ROLE" 
-            from pg_catalog.pg_roles 
-            left join information_schema.applicable_roles on (rolname=role_name)
-            where rolcanlogin=false and role_name is null
+            select upper(trim(r.rolname)) as "ROLE"
+            from pg_catalog.pg_roles r
+            where r.rolcanlogin=false
+            and not exists (
+                select 1 
+                from pg_catalog.pg_auth_members 
+                where roleid=r.oid
+            )
             """,
             self._conx
         ).with_columns(
