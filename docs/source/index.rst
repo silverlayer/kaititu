@@ -57,3 +57,5 @@ Troubleshooting
 
 Although the management of library dependencies is being handled, the drivers required by such libraries are not installed automatically. 
 Therefore, make sure that the necessary drivers for connecting to Oracle, MS SQL Server, and others are functional on your operating system.
+
+Polars doesn't work with older processors that lack `AVX2 <https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#Advanced_Vector_Extensions_2>`_ instructions. So, if that's your situation, you'll need to replace `polars` with `polars-lts-cpu`. For more details, check the official `documentation <https://docs.pola.rs/user-guide/installation>`_.
