@@ -79,9 +79,10 @@ class PostgresACR(AccessControlReport):
     def profile_with_login(self) -> pl.DataFrame:
         return pl.read_database(
             """
-            select upper(trim(rolname)) as "PROFILE" 
+            select upper(trim(rolname)) as "PROFILE"
             from pg_catalog.pg_roles
             where rolcanlogin = true
+            and (rolvaliduntil>now() or rolvaliduntil is null)
             """,
             self._conx
         ).with_columns(

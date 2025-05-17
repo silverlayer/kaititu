@@ -29,10 +29,19 @@ class OracleACR(AccessControlReport):
     def profile_with_login(self) -> pl.DataFrame:
         return pl.read_database(
             """
-            SELECT DISTINCT GRANTEE AS "PROFILE",(SELECT INSTANCE_NAME FROM V$INSTANCE) AS "INSTANCE"
-            FROM DBA_ROLE_PRIVS
-            START WITH GRANTED_ROLE='CONNECT'
-            CONNECT BY PRIOR GRANTEE=GRANTED_ROLE
+            WITH PROFILES AS (
+                SELECT DISTINCT GRANTEE
+                FROM DBA_ROLE_PRIVS
+                START WITH GRANTED_ROLE='CONNECT'
+                CONNECT BY PRIOR GRANTEE=GRANTED_ROLE
+            )
+            SELECT P.GRANTEE AS "PROFILE", (SELECT INSTANCE_NAME FROM V$INSTANCE) AS "INSTANCE"
+            FROM PROFILES P
+            WHERE EXISTS (SELECT 1 FROM DBA_ROLES WHERE ROLE=P.GRANTEE)
+            OR EXISTS (
+                SELECT 1 FROM DBA_USERS WHERE USERNAME=P.GRANTEE
+                AND ACCOUNT_STATUS='OPEN'
+            )
             """,
             self._conx
         ).with_columns(pl.lit(self._socket).alias("SOCKET"))
